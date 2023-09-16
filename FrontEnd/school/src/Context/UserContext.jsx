@@ -24,7 +24,6 @@ export default function UserProvider({ children }) {
         });
     }
   };
-  localStorage.setItem("userId", user._id);
   useEffect(() => {
     userRefresh();
   }, []);

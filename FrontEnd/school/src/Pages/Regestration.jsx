@@ -16,9 +16,7 @@ function Registration() {
   });
 
   const [errors, setErrors] = useState({});
-  const [serverError, setServerError] = useState();
-
-  // const [passwordError, setPasswordError] = useState("");
+  const [serverError, setServerError] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,15 +24,6 @@ function Registration() {
       ...prev,
       [name]: value,
     }));
-
-    // Check if the password and confirmPassword fields match
-    // if (name === "confirmPassword") {
-    //   if (newUser.password !== value) {
-    //     setPasswordError("Passwords do not match.");
-    //   } else {
-    //     setPasswordError("");
-    //   }
-    // }
   };
 
   const validateForm = () => {
@@ -78,17 +67,16 @@ function Registration() {
         name: newUser.name,
         password: newUser.password,
         email: newUser.email,
-        role: "student",
       };
       const res = await axios.post("http://localhost:5000/addUser", userData);
       if (res.data.error == "this email is already exists") {
         setServerError(res.data.error);
       } else {
-        navigate("/SignUp");
         localStorage.setItem("token", res.data.Tok);
         setAuth(true);
         userRefresh();
         refresh();
+        navigate("/");
       }
     } else {
       setErrors(errors);
@@ -187,19 +175,43 @@ function Registration() {
                 </div>
                 <button
                   type="submit"
-                  className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                  className="w-full text-white bg-black hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                 >
                   Create an account
                 </button>
                 <p className="text-sm font-light text-gray-500 dark:text-gray-400">
                   Already have an account?{" "}
                   <Link
-                    to={"SignUp"}
+                    to={"/login"}
                     className="font-medium text-primary-600 hover:underline dark:text-primary-500"
                   >
                     Login here
                   </Link>
                 </p>
+                {serverError && (
+                  <div
+                    class="bg-red-100 border-t-4 border-red-500 rounded-b text-red-900 px-4 py-3 shadow-md"
+                    role="alert"
+                  >
+                    <div class="flex">
+                      <div class="py-1">
+                        <svg
+                          class="fill-current h-6 w-6 text-red-500 mr-4"
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p class="font-bold">{serverError}</p>
+                        <p class="text-sm">
+                          Make sure you know how these changes affect you.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </form>
             </div>
           </div>

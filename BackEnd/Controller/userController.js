@@ -10,7 +10,7 @@ function generateToken({ name, email, role }) {
 module.exports = {
   addUser: async (req, res) => {
     try {
-      const { name, password, email, role } = req.body;
+      const { name, password, email } = req.body;
       const users = await User.findOne({ email });
       if (users) {
         return res.json({ error: "this email is already exists" });
@@ -20,13 +20,13 @@ module.exports = {
         name,
         email: email,
         password: hashPassword,
-        role,
+        role: "User",
       });
       const newUser = await newAccount.save();
       const token = generateToken({
         name: name,
         email: email,
-        role: role,
+        role: newUser.role,
       });
       res.json({ message: "Success adding new user", Tok: token });
       console.log(token);
@@ -39,7 +39,7 @@ module.exports = {
     try {
       const { email, password } = req.body;
       // console.log(token);
-      const userInfo = await User.findOne({ email });
+      const userInfo = await User.findOne({ email, isDeleted: false });
       if (!userInfo) {
         return res.json({ error: "email not found" });
       }
@@ -48,7 +48,7 @@ module.exports = {
       if (!checkPass) {
         return res.json({ error: "Invallid password" });
       }
-      if (userInfo.Active === false) {
+      if (!userInfo.Active) {
         return res.json({ error: "InActive" });
       }
       const role = userInfo.role;
@@ -82,12 +82,51 @@ module.exports = {
   },
   gitAllUsers: async (req, res) => {
     try {
-      const users = await User.find();
-      console.log(users);
+      const users = await User.find({ role: "User" });
       res.json(users);
     } catch (error) {
       console.error("Failed to get users", error);
       res.status(500).json({ message: "Failed to get users" });
+    }
+  },
+
+  deleteUser: async (req, res) => {
+    const { id } = req.params;
+    try {
+      await User.findByIdAndUpdate(id, { isDeleted: true });
+      res.json(" user deleted successfully ");
+    } catch (error) {
+      res.status(500).json({ error: "cannot delete user" });
+    }
+  },
+
+  returnUser: async (req, res) => {
+    const { id } = req.params;
+    try {
+      await User.findByIdAndUpdate(id, { isDeleted: false });
+      res.json(" user returned successfully ");
+    } catch (error) {
+      res.status(500).json({ error: "cannot return user" });
+    }
+  },
+
+  updateUser: async (req, res) => {
+    try {
+      const { name, email, Active } = req.body;
+      const _id = req.params.id;
+
+      await User.findOneAndUpdate(
+        { _id },
+        {
+          name: name,
+          email: email,
+          Active,
+        }
+      );
+
+      res.status(201).json("quote updated successfully ");
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update quote" });
     }
   },
 };
