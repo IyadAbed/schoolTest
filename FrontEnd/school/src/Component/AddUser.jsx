@@ -1,9 +1,6 @@
-import React, { useContext, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
-import { AuthContext } from "../Context/AuthContext";
-import { UserContext } from "../Context/UserContext";
-import { RefreshContext } from "../App";
 import axios from "axios";
 
 function AddUser({ refresh, setRefresh }) {
@@ -20,14 +17,6 @@ function AddUser({ refresh, setRefresh }) {
 
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState("");
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setNewUser((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
 
   const validateForm = () => {
     const errors = {};
@@ -59,8 +48,19 @@ function AddUser({ refresh, setRefresh }) {
     if (newUser.password !== newUser.confirmPassword) {
       errors.re_password = "passwords are not match";
     }
-    return errors;
+    return setErrors(errors);
   };
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setNewUser((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  useEffect(() => {
+    validateForm();
+  }, [newUser]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -75,6 +75,7 @@ function AddUser({ refresh, setRefresh }) {
       if (res.data.error == "this email is already exists") {
         setServerError(res.data.error);
       } else {
+        e.target.reset();
         setRefresh(!refresh);
         navigate("/");
       }
@@ -86,12 +87,12 @@ function AddUser({ refresh, setRefresh }) {
   return (
     <>
       <div id="" className="bg-white  rounded divide-y divide-gray-100 shadow ">
-        <div className="tooltip tooltip-info text-white" data-tip="Add User">
+        <div className="text-white">
           <button
             onClick={() => {
               window.my_modal_4.showModal();
             }}
-            className="btn bg-white hover:bg-info shadow-lg hover:shadow-xl border-none "
+            className="btn bg-white hover:bg-[#70acc7] shadow-lg hover:shadow-xl border-none "
           >
             Add New User
           </button>
@@ -110,7 +111,6 @@ function AddUser({ refresh, setRefresh }) {
                 type="text"
                 name="name"
                 className="input input-sm  border-[#70acc7] w-full max-w-xs"
-                required
               />
               {errors.name && (
                 <span className=" text-red-600">{errors.name}</span>
@@ -126,7 +126,6 @@ function AddUser({ refresh, setRefresh }) {
                 onChange={handleChange}
                 type="email"
                 name="email"
-                required
                 className="input input-sm  border-[#70acc7] w-full max-w-xs"
               />
               {errors.email && (
@@ -144,7 +143,6 @@ function AddUser({ refresh, setRefresh }) {
                 name="password"
                 id="password"
                 placeholder="••••••••"
-                required
                 className="input input-sm  border-[#70acc7] w-full max-w-xs"
               />
               {errors.password && (
@@ -161,7 +159,6 @@ function AddUser({ refresh, setRefresh }) {
                 type="password"
                 name="confirmPassword"
                 id="confirmPassword"
-                required
                 placeholder="••••••••"
                 className="input input-sm  border-[#70acc7] w-full max-w-xs"
               />
@@ -173,6 +170,12 @@ function AddUser({ refresh, setRefresh }) {
               <button type="submit" className="btn btn-sm btn-primary">
                 Add
               </button>
+              <form method="dialog">
+                {/* if there is a button in form, it will close the modal */}
+                <button className="btn btn-sm btn-circle btn-ghost absolute left-2 top-2">
+                  ✕
+                </button>
+              </form>
             </div>
           </div>
           {serverError && (

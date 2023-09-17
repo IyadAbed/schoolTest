@@ -1,13 +1,21 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
-import { AuthContext } from "../Context/AuthContext";
-import { UserContext } from "../Context/UserContext";
-import { RefreshContext } from "../App";
 import axios from "axios";
 
-function AddSubject({ refresh, setRefresh }) {
+function AssignSubject({ refresh, setRefresh }) {
   const navigate = useNavigate();
+
+  const [sellectedSubject, setSellectedSubject] = useState();
+
+  const [subjects, setSubject] = useState([]);
+
+  const [students, setStudent] = useState();
+
+  const [sellectedStuddent, setSellectedStuddent] = useState([]);
+
+  console.log(students);
+
   const [newUser, setNewUser] = useState({
     name: "",
     minMark: Number,
@@ -22,27 +30,38 @@ function AddSubject({ refresh, setRefresh }) {
     }));
   };
 
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/allSubject")
+      .then((response) => {
+        setSubject(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  }, [refresh]);
+
+  useEffect(() => {
+    sellectedSubject
+      ? axios
+          .get(`http://localhost:5000/allUsersBySub/${sellectedSubject}`)
+          .then((response) => {
+            setStudent(response.data);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          })
+      : null;
+  }, [sellectedSubject]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    e.target.reset();
     try {
-      const userData = {
-        name: newUser.name,
-        minMark: newUser.minMark,
-      };
       const res = await axios.post(
-        "http://localhost:5000/addNewSubject",
-        userData
+        `http://localhost:5000/newSubToST/${sellectedStuddent}/${sellectedSubject}`
       );
-      if (res.data.error == "this subject is already exists") {
-        setServerError(res.data.error);
-        SetSuccess("");
-      } else {
-        e.target.reset();
-        setServerError("");
-        SetSuccess(res.data.message);
-        setRefresh(!refresh);
-        navigate("/");
-      }
+      console.log(res.data);
     } catch (error) {
       console.error(error);
     }
@@ -54,44 +73,79 @@ function AddSubject({ refresh, setRefresh }) {
         <div className="text-white">
           <button
             onClick={() => {
-              window.my_modal_2.showModal();
+              window.my_modal_1.showModal();
             }}
             className="btn bg-white hover:bg-[#70acc7] shadow-lg hover:shadow-xl border-none "
           >
-            Add New Subject
+            Assign Subject
           </button>
         </div>
       </div>
-      <dialog id="my_modal_2" className="modal">
+      <dialog id="my_modal_1" className="modal">
         <form onSubmit={handleSubmit} method="dialog" className="modal-box">
           <div className="grid grid-cols-1  gap-4 ">
             <div className="form-control w-full max-w-xs mx-auto">
-              <label className="label">
-                <span className="label-text">Subject Name</span>
+              <label
+                htmlFor="countries"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              >
+                Select A Subject
               </label>
-              <input
-                placeholder="Math"
-                onChange={handleChange}
-                type="text"
-                name="name"
-                className="input input-sm  border-[#70acc7] w-full max-w-xs"
-                required
-              />
+              <select
+                onChange={(e) => {
+                  setSellectedSubject(e.target.value);
+                }}
+                id="countries"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              >
+                <option selected="" disabled>
+                  Choose a country
+                </option>
+                {subjects.map(({ name, _id }) => {
+                  return (
+                    <>
+                      <option key={_id} value={_id}>
+                        {name}
+                      </option>
+                      ;
+                    </>
+                  );
+                })}
+              </select>
             </div>
-            <div className="form-control w-full max-w-xs mx-auto">
-              <label className="label">
-                <span className="label-text">Min Mark</span>
-              </label>
-              <input
-                placeholder="50"
-                onChange={handleChange}
-                type="Number"
-                min={0}
-                name="minMark"
-                required
-                className="input input-sm  border-[#70acc7] w-full max-w-xs"
-              />
-            </div>
+            {sellectedSubject && (
+              <>
+                <div className="form-control w-full max-w-xs mx-auto">
+                  <label
+                    htmlFor="countries"
+                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >
+                    Select A Student
+                  </label>
+                  <select
+                    onChange={(e) => {
+                      setSellectedStuddent(e.target.value);
+                    }}
+                    id="countries"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  >
+                    <option selected="" disabled>
+                      Choose a country
+                    </option>
+                    {students?.map(({ name, _id }) => {
+                      return (
+                        <>
+                          <option key={_id} value={_id}>
+                            {name}
+                          </option>
+                          ;
+                        </>
+                      );
+                    })}
+                  </select>
+                </div>
+              </>
+            )}
             <div className="form-control w-full max-w-xs mx-auto">
               <button type="submit" className="btn btn-sm btn-primary">
                 Add
@@ -158,4 +212,4 @@ function AddSubject({ refresh, setRefresh }) {
   );
 }
 
-export default AddSubject;
+export default AssignSubject;

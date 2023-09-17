@@ -23,6 +23,12 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    Subjects: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Subject",
+      },
+    ],
     isDeleted: {
       type: Boolean,
       default: false,

@@ -1,6 +1,7 @@
 const User = require("../Model/User");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const { default: mongoose } = require("mongoose");
 function generateToken({ name, email, role }) {
   const user = { name, email, role };
   const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
@@ -76,7 +77,7 @@ module.exports = {
 
       res.json(user);
     } catch (error) {
-      console.error("Failed to get user", error);
+      console.error("Failed to get user1", error);
       res.status(500).json({ message: "Failed to get user" });
     }
   },
@@ -85,7 +86,22 @@ module.exports = {
       const users = await User.find({ role: "User" });
       res.json(users);
     } catch (error) {
-      console.error("Failed to get users", error);
+      console.error("Failed to get users2", error);
+      res.status(500).json({ message: "Failed to get users" });
+    }
+  },
+  gitAllUsersBySubject: async (req, res) => {
+    const { id } = req.params;
+    try {
+      // Find all users that are NOT associated with the given subject ID
+      const users = await User.find({
+        Subjects: { $ne: id },
+        role: { $ne: "Admin" },
+      });
+
+      res.json(users);
+    } catch (error) {
+      console.error("Failed to get users3", error);
       res.status(500).json({ message: "Failed to get users" });
     }
   },
@@ -127,6 +143,18 @@ module.exports = {
       res.status(201).json("quote updated successfully ");
     } catch (error) {
       res.status(500).json({ error: "Failed to update quote" });
+    }
+  },
+
+  newSubToST: async (req, res) => {
+    const { StdId, SubID } = req.params;
+    try {
+      const user = await User.findById(StdId);
+      user.Subjects.push(SubID);
+      user.save();
+      res.status(200).json(user);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to assign subject" });
     }
   },
 };

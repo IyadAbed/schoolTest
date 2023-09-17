@@ -3,6 +3,7 @@ const router = express.Router();
 const subjectController = require("../Controller/subjectController");
 
 router.post("/addNewSubject", subjectController.addSubject);
+router.get("/allSubject", subjectController.gitAllSubject);
 
 // router.get("/getUser", verifyUser, userController.getUser);
 // router.get("/allUsers", userController.gitAllUsers);

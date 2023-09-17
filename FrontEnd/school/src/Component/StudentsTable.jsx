@@ -286,6 +286,12 @@ export default function StudentsTable({ refresh, setRefresh }) {
               <button type="submit" className="btn btn-sm btn-primary">
                 update
               </button>
+              <form method="dialog">
+                {/* if there is a button in form, it will close the modal */}
+                <button className="btn btn-sm btn-circle btn-ghost absolute left-2 top-2">
+                  ✕
+                </button>
+              </form>
             </div>
           </div>
         </form>

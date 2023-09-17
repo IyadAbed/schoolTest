@@ -7,7 +7,6 @@ import Admin from "./Pages/Admin";
 // import "@fontsource/roboto/500.css";
 // import "@fontsource/roboto/700.css";
 import { createContext, useContext, useEffect, useState } from "react";
-import Dashboard from "./Pages/Dashboard";
 import { AuthContext } from "./Context/AuthContext";
 import { UserContext } from "./Context/UserContext";
 import Page404 from "./Pages/Page404";
