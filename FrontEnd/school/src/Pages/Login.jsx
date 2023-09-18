@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../Context/AuthContext";
@@ -34,6 +34,10 @@ function Login() {
     return errors;
   };
 
+  useEffect(() => {
+    validateForm();
+  }, [userInfo]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setNewUser((prev) => ({
@@ -64,9 +68,9 @@ function Login() {
         });
       } else {
         localStorage.setItem("token", res.data.Tok);
-        setAuth(true);
         userRefresh();
         refresh();
+        setAuth(true);
         navigate("/");
       }
     } else {

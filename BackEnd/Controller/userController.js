@@ -2,6 +2,7 @@ const User = require("../Model/User");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { default: mongoose } = require("mongoose");
+const Subject = require("../Model/Subject");
 function generateToken({ name, email, role }) {
   const user = { name, email, role };
   const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
@@ -15,6 +16,9 @@ module.exports = {
       const users = await User.findOne({ email });
       if (users) {
         return res.json({ error: "this email is already exists" });
+      }
+      if (users.name == name) {
+        return res.json({ error: "this name is already exists" });
       }
       const hashPassword = await bcrypt.hash(password, 10);
       const newAccount = new User({
@@ -150,11 +154,56 @@ module.exports = {
     const { StdId, SubID } = req.params;
     try {
       const user = await User.findById(StdId);
+      const subject = await Subject.findById(SubID);
       user.Subjects.push(SubID);
+      subject.students.push({
+        student: StdId,
+      });
       user.save();
+      subject.save();
       res.status(200).json(user);
     } catch (error) {
       res.status(500).json({ error: "Failed to assign subject" });
+    }
+  },
+
+  gitAllUsersBySub: async (req, res) => {
+    try {
+      const users = await User.find({
+        role: "User",
+        Subjects: { $exists: true, $ne: [] }, // Check if Subjects array exists and is not empty
+      });
+      if (users) {
+        res.json(users);
+      } else {
+        res.json("there are no users having Subject");
+      }
+    } catch (error) {
+      console.error("Failed to get users with at least one subject", error);
+      res
+        .status(500)
+        .json({ message: "Failed to get users with at least one subject" });
+    }
+  },
+
+  getUserSubjects: async (req, res) => {
+    const { id } = req.params; // Assuming you pass the user's ID as a parameter
+
+    try {
+      const user = await User.findById(id)
+        .populate({
+          path: "Subjects", // Replace with the actual field name in your User schema that references subjects
+        })
+        .exec();
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.json(user.Subjects);
+    } catch (error) {
+      console.error("Failed to get subjects for the user", error);
+      res.status(500).json({ message: "Failed to get subjects for the user" });
     }
   },
 };

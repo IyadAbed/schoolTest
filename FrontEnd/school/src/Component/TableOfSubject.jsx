@@ -1,8 +1,21 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { UserContext } from "../Context/UserContext";
+import axios from "axios";
 
 function TableOfSubject() {
   const { user } = useContext(UserContext);
+  const [subjects, setSubjects] = useState();
+  useEffect(() => {
+    axios
+      .get(`http://localhost:5000/getUserSubjects/${user?._id}`)
+      .then((response) => {
+        setSubjects(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  }, [user]);
+
   return (
     <>
       <div className="flex flex-col mt-24">
@@ -24,21 +37,23 @@ function TableOfSubject() {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr className="border-b dark:border-neutral-500">
-                    <td className="whitespace-nowrap px-6 py-4">Mark</td>
-                    <td className="whitespace-nowrap px-6 py-4">Otto</td>
-                    <td className="whitespace-nowrap px-6 py-4">@mdo</td>
-                  </tr>
-                  <tr className="border-b dark:border-neutral-500">
-                    <td className="whitespace-nowrap px-6 py-4">Jacob</td>
-                    <td className="whitespace-nowrap px-6 py-4">Thornton</td>
-                    <td className="whitespace-nowrap px-6 py-4">@fat</td>
-                  </tr>
-                  <tr className="border-b dark:border-neutral-500">
-                    <td className="whitespace-nowrap px-6 py-4">Larry</td>
-                    <td className="whitespace-nowrap px-6 py-4">Wild</td>
-                    <td className="whitespace-nowrap px-6 py-4">@twitter</td>
-                  </tr>
+                  {subjects?.map((subject) => (
+                    <tr
+                      key={subject._id}
+                      className="border-b dark:border-neutral-500"
+                    >
+                      <td className="whitespace-nowrap px-6 py-4">
+                        {subject.name}
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4">
+                        {subject.minMark}
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4">
+                        {subject.students.find((s) => s.student === user._id)
+                          ?.Mark || "N/A"}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>

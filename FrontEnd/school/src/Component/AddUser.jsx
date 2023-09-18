@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 
 function AddUser({ refresh, setRefresh }) {
-  const navigate = useNavigate();
   const [newUser, setNewUser] = useState({
     name: "",
     email: "",
@@ -24,6 +22,9 @@ function AddUser({ refresh, setRefresh }) {
     // Perform validation checks
     if (!newUser.name) {
       errors.name = "First name is required";
+    }
+    if (newUser.name.length < 8) {
+      errors.name = "Username must be at least 8 characters long";
     }
     if (!newUser.email) {
       errors.email = "Email is required";
@@ -74,10 +75,11 @@ function AddUser({ refresh, setRefresh }) {
       const res = await axios.post("http://localhost:5000/addUser", userData);
       if (res.data.error == "this email is already exists") {
         setServerError(res.data.error);
+      } else if (res.data.error == "this name is already exists") {
+        setServerError(res.data.error);
       } else {
         e.target.reset();
         setRefresh(!refresh);
-        navigate("/");
       }
     } else {
       setErrors(errors);

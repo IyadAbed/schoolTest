@@ -1,9 +1,9 @@
-import { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 
-function AssignSubject({ refresh, setRefresh }) {
+function AssignMark({ refresh, setRefresh }) {
   // const navigate = useNavigate();
 
   const [sellectedSubject, setSellectedSubject] = useState();
@@ -12,16 +12,18 @@ function AssignSubject({ refresh, setRefresh }) {
 
   const [students, setStudent] = useState();
 
-  const [sellectedStuddent, setSellectedStuddent] = useState([]);
+  const [mark, setMark] = useState(Number);
+
+  const [sellectedStuddent, setSellectedStuddent] = useState();
 
   // const [serverError, setServerError] = useState("");
   // const [success, SetSuccess] = useState();
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/allSubject")
+      .get("http://localhost:5000/allUsersInSub")
       .then((response) => {
-        setSubject(response.data);
+        setStudent(response.data);
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
@@ -29,27 +31,34 @@ function AssignSubject({ refresh, setRefresh }) {
   }, [refresh]);
 
   useEffect(() => {
-    sellectedSubject
+    sellectedStuddent
       ? axios
-          .get(`http://localhost:5000/allUsersBySub/${sellectedSubject}`)
+          .get(`http://localhost:5000/getUserSubjects/${sellectedStuddent}`)
           .then((response) => {
-            setStudent(response.data);
+            setSubject(response.data);
           })
           .catch((error) => {
             console.error("Error fetching data:", error);
           })
       : null;
-  }, [sellectedSubject]);
+  }, [sellectedStuddent]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    const stdInfo = {
+      studentId: sellectedStuddent,
+      subjectId: sellectedSubject,
+      mark: mark,
+    };
     try {
-      const res = await axios.post(
-        `http://localhost:5000/newSubToST/${sellectedStuddent}/${sellectedSubject}`
+      const res = await axios.patch(
+        "http://localhost:5000/assignMarkToStudent",
+        stdInfo
       );
       e.target.reset();
+      console.log(res.data);
       setRefresh(!refresh);
+      setSellectedStuddent("");
     } catch (error) {
       console.error(error);
     }
@@ -61,15 +70,15 @@ function AssignSubject({ refresh, setRefresh }) {
         <div className="text-white">
           <button
             onClick={() => {
-              window.my_modal_1.showModal();
+              window.my_modal_7.showModal();
             }}
             className="btn bg-white hover:bg-[#70acc7] shadow-lg hover:shadow-xl border-none "
           >
-            Assign Subject
+            Assign Mark
           </button>
         </div>
       </div>
-      <dialog id="my_modal_1" className="modal">
+      <dialog id="my_modal_7" className="modal">
         <form onSubmit={handleSubmit} method="dialog" className="modal-box">
           <div className="grid grid-cols-1  gap-4 ">
             <div className="form-control w-full max-w-xs mx-auto">
@@ -77,17 +86,17 @@ function AssignSubject({ refresh, setRefresh }) {
                 htmlFor="countries"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
               >
-                Select A Subject
+                Select A Student
               </label>
               <select
                 onChange={(e) => {
-                  setSellectedSubject(e.target.value);
+                  setSellectedStuddent(e.target.value);
                 }}
                 id="countries"
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               >
-                <option selected="">Select a Subject</option>
-                {subjects?.map(({ name, _id }) => {
+                <option selected="">Select a Student</option>
+                {students?.map(({ name, _id }) => {
                   return (
                     <>
                       <option key={_id} value={_id}>
@@ -99,24 +108,24 @@ function AssignSubject({ refresh, setRefresh }) {
                 })}
               </select>
             </div>
-            {sellectedSubject && (
+            {sellectedStuddent && (
               <>
                 <div className="form-control w-full max-w-xs mx-auto">
                   <label
                     htmlFor="countries"
                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                   >
-                    Select A Student
+                    Select A Subject
                   </label>
                   <select
                     onChange={(e) => {
-                      setSellectedStuddent(e.target.value);
+                      setSellectedSubject(e.target.value);
                     }}
                     id="countries"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   >
-                    <option selected="">Choose a Student</option>
-                    {students?.map(({ name, _id }) => {
+                    <option selected="">Choose a country</option>
+                    {subjects?.map(({ name, _id }) => {
                       return (
                         <>
                           <option key={_id} value={_id}>
@@ -130,9 +139,29 @@ function AssignSubject({ refresh, setRefresh }) {
                 </div>
               </>
             )}
+            {sellectedSubject && (
+              <>
+                <div className="form-control w-full max-w-xs mx-auto">
+                  <label className="label">
+                    <span className="label-text">Assign Mark</span>
+                  </label>
+                  <input
+                    placeholder="25"
+                    onChange={(e) => {
+                      setMark(e.target.value);
+                    }}
+                    type="Number"
+                    min={0}
+                    name="Mark"
+                    required
+                    className="input input-sm  border-[#70acc7] w-full max-w-xs"
+                  />
+                </div>
+              </>
+            )}
             <div className="form-control w-full max-w-xs mx-auto">
               <button type="submit" className="btn btn-sm btn-primary">
-                Add
+                Assign
               </button>
               <form method="dialog">
                 {/* if there is a button in form, it will close the modal */}
@@ -196,4 +225,4 @@ function AssignSubject({ refresh, setRefresh }) {
   );
 }
 
-export default AssignSubject;
+export default AssignMark;

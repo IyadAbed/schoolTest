@@ -18,7 +18,6 @@ const subjectSchema = new mongoose.Schema(
         },
         Mark: {
           type: Number,
-          default: NaN,
         },
       },
     ],

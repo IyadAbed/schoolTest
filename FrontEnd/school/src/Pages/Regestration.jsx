@@ -33,6 +33,9 @@ function Registration() {
     if (!newUser.name) {
       errors.name = "First name is required";
     }
+    if (newUser.name.length < 8) {
+      errors.name = "Username must be at least 8 characters long";
+    }
     if (!newUser.email) {
       errors.email = "Email is required";
     } else if (!/\S+@\S+.\S+/.test(newUser.email)) {
@@ -59,6 +62,10 @@ function Registration() {
     return errors;
   };
 
+  useEffect(() => {
+    validateForm();
+  }, [newUser]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const errors = validateForm();
@@ -71,12 +78,16 @@ function Registration() {
       const res = await axios.post("http://localhost:5000/addUser", userData);
       if (res.data.error == "this email is already exists") {
         setServerError(res.data.error);
+      } else if (res.data.error == "this name is already exists") {
+        setServerError(res.data.error);
       } else {
         localStorage.setItem("token", res.data.Tok);
         setAuth(true);
         userRefresh();
         refresh();
-        navigate("/");
+        setTimeout(() => {
+          navigate("/");
+        }, "300");
       }
     } else {
       setErrors(errors);

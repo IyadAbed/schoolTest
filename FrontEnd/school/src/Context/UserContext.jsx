@@ -15,7 +15,6 @@ export default function UserProvider({ children }) {
         })
         .then((response) => {
           if (response.data) {
-            console.log("user", response.data);
             setUser(response.data);
           }
         })
@@ -24,6 +23,7 @@ export default function UserProvider({ children }) {
         });
     }
   };
+
   useEffect(() => {
     userRefresh();
   }, []);
