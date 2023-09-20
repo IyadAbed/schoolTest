@@ -83,18 +83,18 @@ function Registration() {
       } else {
         localStorage.setItem("token", res.data.Tok);
         userRefresh();
+        setTimeout(async () => {
+          // await setDoc(doc(db, "users", user?._id + user._id), {
+          //   uid: user._id,
+          //   name: user.name,
+          //   email: user.email,
+          // });
+          // await setDoc(doc(db, "userChats", user?._id + user._id), {});
+          setAuth(true);
+          refresh();
+          navigate("/");
+        }, "500");
       }
-      setTimeout(async () => {
-        await setDoc(doc(db, "users", user?._id + user._id), {
-          uid: user._id,
-          name: user.name,
-          email: user.email,
-        });
-        await setDoc(doc(db, "userChats", user?._id + user._id), {});
-        setAuth(true);
-        refresh();
-        navigate("/");
-      }, "500");
     } else {
       setErrors(errors);
     }

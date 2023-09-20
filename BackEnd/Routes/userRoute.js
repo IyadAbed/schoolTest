@@ -5,6 +5,7 @@ const verifyUser = require("../Middleware/verify");
 
 router.get("/getUser", verifyUser, userController.getUser);
 router.get("/allUsers", userController.gitAllUsers);
+router.get("/gitAdmin", userController.gitAdmin);
 router.get("/allUsersBySub/:id", userController.gitAllUsersBySubject);
 router.get("/getUserSubjects/:id", userController.getUserSubjects);
 router.get("/commonUsers/:id", userController.commonUsers);

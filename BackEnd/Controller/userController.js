@@ -81,7 +81,7 @@ module.exports = {
 
       res.json(user);
     } catch (error) {
-      console.error("Failed to get user1", error);
+      // console.error("Failed to get user1", error);
       res.status(500).json({ message: "Failed to get user" });
     }
   },
@@ -92,6 +92,15 @@ module.exports = {
     } catch (error) {
       console.error("Failed to get users2", error);
       res.status(500).json({ message: "Failed to get users" });
+    }
+  },
+  gitAdmin: async (req, res) => {
+    try {
+      const Admin = await User.find({ role: "Admin" });
+      res.json(Admin);
+    } catch (error) {
+      // console.error("Failed to get Admin2", error);
+      res.status(500).json({ message: "Failed to get Admin" });
     }
   },
   gitAllUsersBySubject: async (req, res) => {

@@ -20,7 +20,7 @@ const Message = ({ message }) => {
         message?.senderId !== user?._id + user._id && "flex-row-reverse"
       }`}
     >
-      <div className="flex items-end">
+      <div className={`flex items-end ${message.img && "flex-col"}`}>
         <div className="chat-bubble">{message.text}</div>
         {message.img && <img src={message?.img} alt="" />}
       </div>

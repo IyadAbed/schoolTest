@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   arrayUnion,
   doc,
@@ -12,15 +12,9 @@ import Message from "./Message";
 import { ImAttachment } from "react-icons/im";
 import { v4 as uuid } from "uuid";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import LazyLoad from "react-lazy-load";
 
-const ChatWidget = ({
-  onSendMessage,
-  user,
-  userSellected,
-  combinedId,
-  messages,
-  otherMessages,
-}) => {
+const ChatWidget = ({ user, userSellected, combinedId }) => {
   const [inputMessage, setInputMessage] = useState("");
   const [messagess, setMessages] = useState([]);
 
@@ -29,6 +23,8 @@ const ChatWidget = ({
   const usersss = user._id + user._id;
   // console.log(usersss);
   const [chats, setChats] = useState();
+  const [loading, setLoading] = useState(false);
+  const containerRef = useRef(null);
   useEffect(() => {
     const mes = () => {
       const unSub = onSnapshot(doc(db, "chats", combinedId), (doc) => {
@@ -40,30 +36,30 @@ const ChatWidget = ({
     };
     combinedId && mes();
   }, [combinedId]);
-  useEffect(() => {
-    const getChat = () => {
-      const unsub = onSnapshot(doc(db, "userChats", usersss), (doc) => {
-        console.log(doc.data());
-        setChats(doc.data());
-      });
-      return () => {
-        unsub();
-      };
-    };
-    user?._id && getChat();
-  }, [user?._id]);
+  // useEffect(() => {
+  //   const getChat = () => {
+  //     const unsub = onSnapshot(doc(db, "userChats", usersss), (doc) => {
+  //       console.log(doc.data());
+  //       setChats(doc.data());
+  //     });
+  //     return () => {
+  //       unsub();
+  //     };
+  //   };
+  //   user?._id && getChat();
+  // }, [user?._id]);
 
   // const handleInputChange = (e) => {
   //   setInputMessage(e.target.value);
   // };
 
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-    if (inputMessage.trim() !== "") {
-      onSendMessage(inputMessage);
-      setInputMessage("");
-    }
-  };
+  // const handleFormSubmit = (e) => {
+  //   e.preventDefault();
+  //   if (inputMessage.trim() !== "") {
+  //     onSendMessage(inputMessage);
+  //     setInputMessage("");
+  //   }
+  // };
 
   const handleSend = async (e) => {
     e.preventDefault();
@@ -101,19 +97,19 @@ const ChatWidget = ({
       });
     }
 
-    await updateDoc(doc(db, "userChats", usersss), {
-      [combinedId + ".lastMessage"]: {
-        text: inputMessage,
-      },
-      [combinedId + ".date"]: serverTimestamp(),
-    });
+    // await updateDoc(doc(db, "userChats", usersss), {
+    //   [combinedId + ".lastMessage"]: {
+    //     text: inputMessage,
+    //   },
+    //   [combinedId + ".date"]: serverTimestamp(),
+    // });
 
-    await updateDoc(doc(db, "userChats", userSellected.id + userSellected.id), {
-      [combinedId + ".lastMessage"]: {
-        text: inputMessage,
-      },
-      [combinedId + ".date"]: serverTimestamp(),
-    });
+    // await updateDoc(doc(db, "userChats", userSellected.id + userSellected.id), {
+    //   [combinedId + ".lastMessage"]: {
+    //     text: inputMessage,
+    //   },
+    //   [combinedId + ".date"]: serverTimestamp(),
+    // });
 
     setInputMessage("");
     setImg(null);
@@ -133,7 +129,9 @@ const ChatWidget = ({
                   {messagess.map((m) => {
                     return (
                       <>
+                        {/* <LazyLoad height={300} threshold={1} inverse={true}> */}
                         <Message message={m} key={m.id} />
+                        {/* </LazyLoad> */}
                       </>
                     );
                   })}

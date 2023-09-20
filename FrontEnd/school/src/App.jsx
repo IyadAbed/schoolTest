@@ -38,6 +38,7 @@ function App() {
           {auth && user.role === "Admin" ? (
             <Routes>
               <Route index path="/" element={<Admin />} />
+              <Route path="Chat" element={<Chatt />} />
               <Route path="*" element={<Page404 />} />
             </Routes>
           ) : auth && user.role === "User" ? (

@@ -25,6 +25,7 @@ export const Chatt = () => {
   const [users, setUsers] = useState();
   const { refresh } = useContext(AuthContext);
   const { user } = useContext(UserContext);
+  console.log(users);
 
   useEffect(() => {
     axios
@@ -35,17 +36,27 @@ export const Chatt = () => {
       .catch((error) => {
         console.error("Error fetching data:", error);
       });
-  }, []);
+  }, [user?._id]);
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/commonUsers/${user._id}`)
+      .get(`http://localhost:5000/commonUsers/${user?._id}`)
       .then((response) => {
-        setUsers(response.data);
+        response.data.length > 0
+          ? setUsers(response.data)
+          : user.role === "Admin"
+          ? axios
+              .get(`http://localhost:5000/allUsers`)
+              .then((res) => setUsers(res.data))
+              .catch((error) => console.error(error))
+          : axios
+              .get(`http://localhost:5000/gitAdmin`)
+              .then((res) => setUsers(res.data))
+              .catch((error) => console.error(error));
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
       });
-  }, []);
+  }, [user?._id]);
 
   const [userSellected, setUserSellected] = useState({
     id: "",
@@ -86,20 +97,20 @@ export const Chatt = () => {
         await setDoc(doc(db, "chats", combinedId), { messages: [] });
 
         //create user chats
-        await updateDoc(doc(db, "userChats", user._id + user._id), {
-          [combinedId + ".userInfo"]: {
-            uid: a,
-            Name: b,
-          },
-          [combinedId + ".date"]: serverTimestamp(),
-        });
-        await updateDoc(doc(db, "userChats", a + a), {
-          [combinedId + ".userInfo"]: {
-            uid: user._id,
-            Name: user.name,
-          },
-          [combinedId + ".date"]: serverTimestamp(),
-        });
+        // await updateDoc(doc(db, "userChats", user._id + user._id), {
+        //   [combinedId + ".userInfo"]: {
+        //     uid: a,
+        //     Name: b,
+        //   },
+        //   [combinedId + ".date"]: serverTimestamp(),
+        // });
+        // await updateDoc(doc(db, "userChats", a + a), {
+        //   [combinedId + ".userInfo"]: {
+        //     uid: user._id,
+        //     Name: user.name,
+        //   },
+        //   [combinedId + ".date"]: serverTimestamp(),
+        // });
       }
     } catch (error) {
       console.log(error);
@@ -173,13 +184,17 @@ export const Chatt = () => {
                       style={{ color: "black" }}
                     />
                     <span className="ml-3">{name + `-`}</span> <br />
-                    {Subjects?.map(({ name, _id }) => {
-                      return (
-                        <>
-                          <p key={_id}>{name + `/ `}</p>
-                        </>
-                      );
-                    })}
+                    {user.role == "User" ? (
+                      <>
+                        {Subjects?.map(({ name, _id }) => {
+                          return (
+                            <>
+                              <p key={_id}>{name + `/ `}</p>
+                            </>
+                          );
+                        })}
+                      </>
+                    ) : null}
                   </button>
                 </>
               );
