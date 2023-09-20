@@ -81,19 +81,19 @@ function Registration() {
       } else if (res.data.error == "this name is already exists") {
         setServerError(res.data.error);
       } else {
-        localStorage.setItem("token", res.data.Tok);
-        userRefresh();
-        setTimeout(async () => {
-          // await setDoc(doc(db, "users", user?._id + user._id), {
-          //   uid: user._id,
-          //   name: user.name,
-          //   email: user.email,
-          // });
-          // await setDoc(doc(db, "userChats", user?._id + user._id), {});
-          setAuth(true);
-          refresh();
-          navigate("/");
-        }, "500");
+        // localStorage.setItem("token", res.data.Tok);
+        // userRefresh();
+        navigate("/login");
+        // setTimeout(async () => {
+        // await setDoc(doc(db, "users", user?._id + user._id), {
+        //   uid: user._id,
+        //   name: user.name,
+        //   email: user.email,
+        // });
+        // await setDoc(doc(db, "userChats", user?._id + user._id), {});
+        //   setAuth(true);
+        //   refresh();
+        // }, "500");
       }
     } else {
       setErrors(errors);

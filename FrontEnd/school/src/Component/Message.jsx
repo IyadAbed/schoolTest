@@ -22,7 +22,7 @@ const Message = ({ message }) => {
     >
       <div className={`flex items-end ${message.img && "flex-col"}`}>
         <div className="chat-bubble">{message.text}</div>
-        {message.img && <img src={message?.img} alt="" />}
+        {message.img && <img className="w-32" src={message?.img} alt="" />}
       </div>
     </div>
   );
