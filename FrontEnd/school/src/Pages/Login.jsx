@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../Context/AuthContext";
 import { UserContext } from "../Context/UserContext";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../firebase";
 
 function Login() {
   const [userInfo, setNewUser] = useState({
@@ -11,7 +13,7 @@ function Login() {
   });
   const navigate = useNavigate();
   let { setAuth, refresh } = useContext(AuthContext);
-  let { userRefresh } = useContext(UserContext);
+  let { userRefresh, user } = useContext(UserContext);
 
   const [errors, setErrors] = useState({});
   const [serverDataErrors, setServerDataErrors] = useState({
@@ -69,9 +71,22 @@ function Login() {
       } else {
         localStorage.setItem("token", res.data.Tok);
         userRefresh();
-        refresh();
-        setAuth(true);
-        navigate("/");
+        // setTimeout(() => {
+        //   refresh();
+        //   setAuth(true);
+        //   navigate("/");
+        // }, "500");
+        setTimeout(async () => {
+          // await setDoc(doc(db, "users", user?._id + user._id), {
+          //   uid: user?._id + user._id,
+          //   name: user.name,
+          //   email: user.email,
+          // });
+          // await setDoc(doc(db, "userChats", user?._id + user._id), {});
+          refresh();
+          setAuth(true);
+          navigate("/");
+        }, "500");
       }
     } else {
       setErrors(errors);

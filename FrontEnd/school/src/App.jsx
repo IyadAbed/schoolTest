@@ -11,7 +11,11 @@ import { AuthContext } from "./Context/AuthContext";
 import { UserContext } from "./Context/UserContext";
 import Page404 from "./Pages/Page404";
 import StudentPage from "./Pages/StudentPage";
-import NavBar from "./Component/NavBar";
+import NavBar from "./Component/Navbar";
+// import ChatPage from "./Pages/ChatPage";
+import "./style.scss";
+import { Chatt } from "./Pages/Chatt";
+
 export const RefreshContext = createContext();
 function App() {
   const [refresh, setRefresh] = useState(true);
@@ -37,10 +41,13 @@ function App() {
               <Route path="*" element={<Page404 />} />
             </Routes>
           ) : auth && user.role === "User" ? (
-            <Routes>
-              <Route path="/" element={<StudentPage />} />
-              <Route path="*" element={<Page404 />} />
-            </Routes>
+            <>
+              <Routes>
+                <Route path="/" element={<StudentPage />} />
+                <Route path="Chat" element={<Chatt />} />
+                <Route path="*" element={<Page404 />} />
+              </Routes>
+            </>
           ) : (
             <Routes>
               <Route index path="/registration" element={<Regestration />} />

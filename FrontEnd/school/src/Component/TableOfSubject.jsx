@@ -18,6 +18,23 @@ function TableOfSubject() {
 
   return (
     <>
+      <div className="overflow-x-auto my-5">
+        <table className="table">
+          {/* head */}
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{user.name}</td>
+              <td>{user.email}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
       <div className="flex flex-col mt-24">
         <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 sm:px-6 lg:px-8">

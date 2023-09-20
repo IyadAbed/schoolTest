@@ -12,6 +12,11 @@ function NavBar({ auth, setAuth }) {
     <>
       <div className="navbar justify-between w-full bg-base-100">
         <a className="btn btn-ghost normal-case text-xl">daisyUI</a>
+        <div role="button" className="navbar-end">
+          <Link className="btn" to={"chat"}>
+            Chat
+          </Link>
+        </div>
         {auth ? (
           <>
             <div role="button" onClick={handleLogOut} className="navbar-end">

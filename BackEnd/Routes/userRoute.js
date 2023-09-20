@@ -7,6 +7,7 @@ router.get("/getUser", verifyUser, userController.getUser);
 router.get("/allUsers", userController.gitAllUsers);
 router.get("/allUsersBySub/:id", userController.gitAllUsersBySubject);
 router.get("/getUserSubjects/:id", userController.getUserSubjects);
+router.get("/commonUsers/:id", userController.commonUsers);
 router.get("/allUsersInSub", userController.gitAllUsersBySub);
 router.post("/addUser", userController.addUser);
 router.post("/log", userController.Login);

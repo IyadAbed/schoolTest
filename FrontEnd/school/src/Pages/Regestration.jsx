@@ -1,12 +1,14 @@
 import axios from "axios";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../Context/AuthContext";
 import { UserContext } from "../Context/UserContext";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../firebase";
 
 function Registration() {
   let { setAuth, refresh } = useContext(AuthContext);
-  let { userRefresh } = useContext(UserContext);
+  let { userRefresh, user } = useContext(UserContext);
   const navigate = useNavigate();
   const [newUser, setNewUser] = useState({
     name: "",
@@ -28,7 +30,6 @@ function Registration() {
 
   const validateForm = () => {
     const errors = {};
-
     // Perform validation checks
     if (!newUser.name) {
       errors.name = "First name is required";
@@ -59,7 +60,7 @@ function Registration() {
     if (newUser.password !== newUser.confirmPassword) {
       errors.re_password = "passwords are not match";
     }
-    return errors;
+    return setErrors(errors);
   };
 
   useEffect(() => {
@@ -68,7 +69,6 @@ function Registration() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const errors = validateForm();
     if (Object.keys(errors).length === 0) {
       const userData = {
         name: newUser.name,
@@ -82,13 +82,19 @@ function Registration() {
         setServerError(res.data.error);
       } else {
         localStorage.setItem("token", res.data.Tok);
-        setAuth(true);
         userRefresh();
-        refresh();
-        setTimeout(() => {
-          navigate("/");
-        }, "300");
       }
+      setTimeout(async () => {
+        await setDoc(doc(db, "users", user?._id + user._id), {
+          uid: user._id,
+          name: user.name,
+          email: user.email,
+        });
+        await setDoc(doc(db, "userChats", user?._id + user._id), {});
+        setAuth(true);
+        refresh();
+        navigate("/");
+      }, "500");
     } else {
       setErrors(errors);
     }

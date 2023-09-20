@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
+import { doc, setDoc } from "firebase/firestore";
 
 function AddUser({ refresh, setRefresh }) {
   const [newUser, setNewUser] = useState({
@@ -65,7 +66,6 @@ function AddUser({ refresh, setRefresh }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const errors = validateForm();
     if (Object.keys(errors).length === 0) {
       const userData = {
         name: newUser.name,
@@ -78,6 +78,11 @@ function AddUser({ refresh, setRefresh }) {
       } else if (res.data.error == "this name is already exists") {
         setServerError(res.data.error);
       } else {
+        await setDoc(doc(db, "users", user?._id), {
+          uid: user._id,
+          name: user.name,
+          email: user.email,
+        });
         e.target.reset();
         setRefresh(!refresh);
       }

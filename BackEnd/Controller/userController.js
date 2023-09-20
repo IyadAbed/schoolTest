@@ -17,9 +17,9 @@ module.exports = {
       if (users) {
         return res.json({ error: "this email is already exists" });
       }
-      if (users.name == name) {
-        return res.json({ error: "this name is already exists" });
-      }
+      // if (users.name) {
+      //   return res.json({ error: "this name is already exists" });
+      // }
       const hashPassword = await bcrypt.hash(password, 10);
       const newAccount = new User({
         name,
@@ -204,6 +204,52 @@ module.exports = {
     } catch (error) {
       console.error("Failed to get subjects for the user", error);
       res.status(500).json({ message: "Failed to get subjects for the user" });
+    }
+  },
+  gitAllUsersInSameSub: async (req, res) => {
+    const { id } = req.params;
+    try {
+      // Find all users that are NOT associated with the given subject ID
+      const users = await User.findById(id).populate();
+
+      res.json(users);
+    } catch (error) {
+      console.error("Failed to get users3", error);
+      res.status(500).json({ message: "Failed to get users" });
+    }
+  },
+  commonUsers: async (req, res) => {
+    const { id } = req.params;
+
+    try {
+      // Find the specified user by ID
+      const user = await User.findById(id);
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Find all projects where the user is involved
+      const userProjects = await Subject.find({
+        "students.student": { $in: id },
+      }); // Replace 'students' with the actual field in your Project model that references users
+
+      // Get an array of project IDs that the user is involved in
+      const projectIds = userProjects.map((project) => project._id);
+
+      // Find all users who are involved in the same projects as the specified user
+      const commonUsers = await User.find({
+        _id: { $ne: id }, // Exclude the specified user
+        Subjects: { $in: projectIds }, // Replace 'Subjects' with the actual field in your User model that references subjects
+      }).populate({
+        path: "Subjects",
+        select: "name",
+      });
+
+      res.json(commonUsers);
+    } catch (error) {
+      console.error("Failed to get common project users", error);
+      res.status(500).json({ message: "Failed to get common project users" });
     }
   },
 };
